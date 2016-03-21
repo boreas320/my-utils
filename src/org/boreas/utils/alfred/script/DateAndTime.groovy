@@ -1,23 +1,18 @@
 package org.boreas.utils.alfred.script
+
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+
 /**
  * Created by shuai.xiang@renren-inc.com on 16/3/21.
  */
-
-
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
+import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.parsers.ParserConfigurationException
+import javax.xml.transform.*
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import java.text.SimpleDateFormat
 
 /**
  * Created by shuai.xiang@renren-inc.com on 16/1/20.
@@ -141,6 +136,8 @@ public class XmlGenerator {
         private String icon;
         private String iconType;
 
+        Item() {
+        }
 
         public Item(String uid, String arg, boolean valid, String autocomplete, String type, String title, String subtitle, String icon, String iconType) {
             this.uid = uid;
@@ -231,10 +228,32 @@ public class XmlGenerator {
 
 }
 
+def items = new XmlGenerator.Items()
+def format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+System.err.println(args)
 if (args.length != 1) {
-    errorItem = new XmlGenerator.Item("", "error args", true, "", "", "", "", "", "")
-    items = new XmlGenerator.Items()
+    errorItem = new XmlGenerator.Item("", "error args", false, "", "", "", "", "", "")
+    errorItem.setTitle("error")
     items.addItem(errorItem)
-    println items.toString()
+} else {
+    timeOrDate = args[0]
+    if (timeOrDate.matches("\\d+")) {
+        def date = new Date(Long.parseLong(timeOrDate))
+        def string = format.format(date)
+        def item = new XmlGenerator.Item()
+        item.setTitle(string)
+        item.setArg(string)
+        items.addItem(item)
+    } else if (timeOrDate.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
 
+        def parse = format.parse(timeOrDate)
+        String time = parse.getTime()
+
+        def item = new XmlGenerator.Item()
+        item.setTitle(time)
+        item.setArg(time)
+        items.addItem(item)
+    }
 }
+println items.toString()
+
